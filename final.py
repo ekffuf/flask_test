@@ -2,16 +2,19 @@
 
 from flask import Flask
 from flask_restx import Api, Resource
-from keras.preprocessing.sequence import pad_sequences
+from keras.utils import pad_sequences
 import speech_recognition as sr
 from pydub import AudioSegment
+import urllib.parse
 import pickle as pk
 import os
 from keras.models import load_model
 
 # m4a를 wav파일로 변환
 def m4a_wav_convert(path):
-    wav_path = AudioSegment.from_file("쇼핑_203.m4a", format="wav")
+    encoded_path = urllib.parse.quote("쇼핑_462.m4a")
+    wav_path = AudioSegment.from_file(encoded_path, format="m4a", encoding="utf-8")
+    wav_path.export("쇼핑_462.wav", format="wav")
     return wav_path
 
 
