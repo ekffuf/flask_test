@@ -7,7 +7,7 @@ api = Api(app)
 
 
 def to_wav(mp4):
-    return mp4.replace(".mp4", ".wav")
+    return mp4.replace(".mp4", ".wav파일")
 
 
 def stt(wav):

@@ -12,7 +12,7 @@ import pickle as pk
 # -- coding: UTF-8 -*-
 def mp4_wavconvent(path):
     video = VideoFileClip(i)
-    video.audio.write_audiofile(i.replace(".mp4", ".wav"))
+    video.audio.write_audiofile(i.replace(".mp4", ".wav파일"))
 
 if __name__ == '__main__':
     filelist = askopenfilenames(initialdir="c:\\공유폴더",
@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
 #파일로부터 음성 불러오기, STT변환
 r = sr.Recognizer()
-with sr.AudioFile('0002.wav') as source:
+with sr.AudioFile('0002.wav파일') as source:
     audio = r.record(source)
 
 r_text = r.recognize_google(audio, language='ko')

@@ -8,7 +8,7 @@ import pickle as pk
 #m4a를 wav파일로 변환
 def m4a_wavconvent(path):
 
-    return audio.write_audiofile(i.replace(".m4a", ".wav"))
+    return audio.write_audiofile(i.replace(".m4a", ".wav파일"))
 
 def stt(wav):
     # 파일로부터 음성 불러오기, STT변환
@@ -58,8 +58,8 @@ class HelloWorld(Resource):
 
      # def get(self, name):  # GET 요청시 리턴 값에 해당 하는 dict를 JSON 형태로 반환
      #     m4a = name
-     #     wav = m4a_wavconvent(m4a)
-     #     text = stt(wav)
+     #     wav파일 = m4a_wavconvent(m4a)
+     #     text = stt(wav파일)
      #     detect = model(text)
      #     return {"result": detect}
 

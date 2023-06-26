@@ -13,8 +13,8 @@ import math
 def m4a_wav_convert(path):
     encoded_path = urllib.parse.unquote(path)
     m4a_file = AudioSegment.from_file(encoded_path, format="m4a", encoding="utf-8")
-    wav_path = encoded_path.replace(".m4a", ".wav")
-    m4a_file.export(wav_path, format="wav")
+    wav_path = encoded_path.replace(".m4a", ".wav파일")
+    m4a_file.export(wav_path, format="wav파일")
     return wav_path
 
 def cut_audio(wav_path, start_time, end_time):
@@ -40,10 +40,10 @@ end_time = 30000  # 자르기 종료 시간 (밀리초)
 cut_audio = cut_audio(wav_path, start_time, end_time)
 
 # 잘린 음원을 임시 파일로 저장
-cut_audio.export("cut_audio.wav", format="wav")
+cut_audio.export("cut_audio.wav파일", format="wav파일")
 
 # 잘린 음원 STT 변환
-transcribed_text = transcribe_audio("cut_audio.wav")
+transcribed_text = transcribe_audio("cut_audio.wav파일")
 
 # 변환된 텍스트 이어붙이기
 

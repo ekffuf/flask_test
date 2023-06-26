@@ -13,9 +13,9 @@ def trim_audio_data(audio_file, save_file, start_time=0.0):
     sf.write(save_file + f"_{start_time}.wav", ny, sr)
 
 
-base_path = r"C:\Users\HKIT\PycharmProjects\realproject"
-audio_path = base_path + r"\project\wav파일"
-save_path = base_path + r"\project\wav"
+base_path = r"C:\Users\HKIT\PycharmProjects\yhdatabase"
+audio_path = base_path + r"\wav파일"
+save_path = base_path + r"\wav"
 
 audio_list = os.listdir(audio_path)
 

@@ -12,7 +12,7 @@ import pickle as pk
 # -- coding: UTF-8 -*-
 # def mp4_wavconvent(path):
 #     video = VideoFileClip(i)
-#     video.audio.write_audiofile(i.replace(".mp4", ".wav"))
+#     video.audio.write_audiofile(i.replace(".mp4", ".wav파일"))
 
 # if __name__ == '__main__':
 #     filelist = askopenfilenames(initialdir="c:\\공유폴더",
@@ -25,7 +25,7 @@ import pickle as pk
 #m4a를 wav파일로 변환
 def m4a_wavconvent(path):
     video = VideoFileClip(i)
-    video.audio.write_audiofile(i.replace(".m4a", ".wav"))
+    video.audio.write_audiofile(i.replace(".m4a", ".wav파일"))
 
 if __name__ == '__main__':
     filelist = askopenfilenames(initialdir="c:\\공유폴더",

@@ -14,7 +14,7 @@ from keras.models import load_model
 def m4a_wav_convert(path):
     encoded_path = urllib.parse.unquote(path)
     m4a_file = AudioSegment.from_file(encoded_path, format="m4a", encoding="utf-8")
-    wav_path = m4a_file.export(path.replace(".m4a", ".wav"), format="wav")
+    wav_path = m4a_file.export(path.replace(".m4a", ".wav파일"), format="wav파일")
     return wav_path
 
 

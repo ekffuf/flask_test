@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, render_template, request
 from flask_restx import Api, Resource
 from pydub import AudioSegment
 import speech_recognition as sr
@@ -9,6 +9,7 @@ import os
 import pickle as pk
 import librosa
 import soundfile as sf
+import math
 
 def m4a_wav_convert(path):
     encoded_path = urllib.parse.unquote(path)
@@ -19,45 +20,49 @@ def m4a_wav_convert(path):
     return wav_path
 
 
-def trim_audio_data(wav_path, save_file, start_time=0.0):
+def trim_audio_data(wav_path, save_file, start_time=0.0, sec=30):
     sr = 44100
     y, sr = librosa.load(wav_path, sr=sr)
-    sec = int(librosa.get_duration(y=y, sr=sr))
+    sec_total = int(librosa.get_duration(y=y, sr=sr))
     ny = y[start_time * sr:sr * (sec + start_time)]
     my = sf.write(save_file + f"_{start_time}.wav", ny, sr)
-    print(my)
     return my
 
-audio_list = os.listdir(r"C:\Users\HKIT\PycharmProjects\yhdatabase")
-
+base_path = r"C:\Users\HKIT\PycharmProjects\yhdatabase"
+audio_path = base_path + r"\wav_filename"
+save_path = base_path + r"\wav"
+audio_list = os.listdir(audio_path)
+audio_list = ["25.m4a"]  # 임시 라인임!!!!!!!!!!!!
 
 def cut_wav(my):
     for audio_name in audio_list:
-        if audio_name.find('wav') != -1:
-            audio_file = my
-            save_file = my + "\\" + "wav" + "\\" + audio_name[:-4]
+        if audio_name.find('wav'):
+            audio_file = audio_path + "\\" + audio_name
+            save_file = save_path + "\\" + audio_name[:-4]
             f = sf.SoundFile(audio_file)
             f_sec = f.frames // f.samplerate
             print(audio_file, " seconds, ", f_sec)
 
             sec = 30
-            for i in range(f_sec - sec):
+            data_list = []
+            for i in range(math.ceil(f_sec / sec)):
                 if i * 30 > f_sec:
                     break
-                a = trim_audio_data(audio_file, save_file, i * 30)
-    return a
+                data_list.append(trim_audio_data(audio_file, save_file, i * 30, sec))
+        return data_list
 
+def transcribe_audio(data_list):
+    text_list = []
+    for i in data_list:
+        r = sr.Recognizer()
+        with sr.AudioFile(i) as source:
+            audio = r.record(source)
+        text = r.recognize_google(audio, language='ko-KR')
+        text_list.append(text)
+    return text_list
 
-def transcribe_audio(a):
-    r = sr.Recognizer()
-    with sr.AudioFile(a) as source:
-        audio = r.record(source)
-    text = r.recognize_google(audio, language='ko-KR')
-    print(text)
-    return text
-
-def concatenate_texts(text):
-    concatenated_text = ' '.join(text)
+def concatenate_texts(text_list):
+    concatenated_text = ' '.join(text_list)
     print(concatenated_text)
     return concatenated_text
 
@@ -74,9 +79,7 @@ with open("tokenizer_post.pickle", "rb") as f:
 model2 = load_model("model_post.h5")
 
 
-def predict(concatenated_text):
-    string = concatenate_texts(concatenated_text)
-
+def predict(string):
     real_sequences1 = tokenizer1.texts_to_sequences([string])
     real_seq1 = pad_sequences(real_sequences1, maxlen=1000, truncating="pre")
     result1 = model1.predict(real_seq1)
@@ -96,13 +99,25 @@ app = Flask(__name__)
 api = Api(app)
 
 
-@api.route("/fraud/filename/<string:m4apath>")
+@api.route("/", methods=["POST"])
+class HelloWorld(Resource):
+    def post(self):
+        if request.method == 'POST':
+            m4a_path = request.form["m4apath"] #["m4apath"]부분은 웹에서 쏴주는 형식으로 변경
+            wav_path = m4a_wav_convert(m4a_path)
+            cut = cut_wav(wav_path)
+            stt = transcribe_audio(cut)
+            text_final = concatenate_texts(stt)
+            detect = predict(text_final)
+        return render_template(detect=detect)
+
+@api.route("/fraud/filename/<string:m4apath>", methods=["GET"])
 class HelloWorld(Resource):
     def get(self, m4apath):
         wav_path = m4a_wav_convert(m4apath)
         cut = cut_wav(wav_path)
-        wav_final = transcribe_audio(cut)
-        text_final = concatenate_texts(wav_final)
+        stt = transcribe_audio(cut)
+        text_final = concatenate_texts(stt)
         detect = predict(text_final)
         return {"result": detect}
 

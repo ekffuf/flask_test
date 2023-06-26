@@ -13,8 +13,8 @@ import math
 def m4a_wav_convert(path):
     encoded_path = urllib.parse.unquote(path)
     m4a_file = AudioSegment.from_file(encoded_path, format="m4a", encoding="utf-8")
-    wav_path = encoded_path.replace(".m4a", ".wav")
-    m4a_file.export(wav_path, format="wav")
+    wav_path = encoded_path.replace(".m4a", ".wav파일")
+    m4a_file.export(wav_path, format="wav파일")
     return wav_path
 
 def cut_audio(wav_path, start_time, end_time):
