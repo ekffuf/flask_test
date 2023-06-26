@@ -17,27 +17,23 @@ def m4a_wav_convert(path):
     m4a_file.export(wav_path, format="wav")
     return wav_path
 
+def cut_audio(wav_path, start_time, end_time):
+    audio = AudioSegment.from_file(wav_path)
+    cut_audio = audio[start_time:end_time]
+    return cut_audio
 
-def stt(wav):
-    r = sr.Recognizer()
+def transcribe_audio(wav_path):
     real = ""
-    total_duration = 120000  # 총 음원 길이 (밀리세컨드)
-    split_duration = 120000  # 쪼갤 음원 길이 (밀리세컨드)
-    num_splits = math.ceil(total_duration / split_duration)  # 총 쪼갤 개수
-
-    for i in range(num_splits):
-        start_time = i * split_duration  # 시작 시간
-        end_time = min((i + 1) * split_duration, total_duration)  # 종료 시간
-
-        split_wav = wav[start_time:end_time]  # 음원 쪼개기
-
-        with sr.AudioFile(split_wav) as source:
-            audio = r.record(source)
-
-        r_text = r.recognize_google(audio, language='ko-KR')
-        real += r_text
-
+    r = sr.Recognizer()
+    with sr.AudioFile(wav_path) as source:
+        audio = r.record(source)
+    text = r.recognize_google(audio, language='ko-KR')
+    real += text
     return real
+
+def concatenate_texts(text_list):
+    concatenated_text = ' '.join(text_list)
+    return concatenated_text
 
 
 # 모델 호출
@@ -54,8 +50,8 @@ model2 = load_model("model_post.h5")
 
 
 def predict(wav_path):
-    string = stt(wav_path)
-    string = " ".join(string)
+    string = transcribe_audio(wav_path)
+    string = concatenate_texts(string)
 
     real_sequences1 = tokenizer1.texts_to_sequences([string])
     real_seq1 = pad_sequences(real_sequences1, maxlen=1000, truncating="pre")

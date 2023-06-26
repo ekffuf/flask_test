@@ -21,17 +21,10 @@ def m4a_wav_convert(path):
 def stt(wav):
     # 파일로부터 음성 불러오기, STT변환
     r = sr.Recognizer()
-    real = ""
-    # if문을 통해서 ".wav"파일의 총음원 길이가 120,000밀리세컨드를 넘을 경우
-    # for문을 돌면서 120,000밀리세컨드로 쪼개서 변환시키기
-    # 변환된 파일들을 for문을 이용해서 합치기(for문이 끝나기 전에)
-    #38_음성을_30초로_자르기을 참고해서 코드를 작성하면 될 것
-    for wav in range():
-        with sr.AudioFile(m4a_wav_convert(wav)) as source:
+    with sr.AudioFile(m4a_wav_convert(wav)) as source:
             audio = r.record(source)
-        r_text = r.recognize_google(audio, language='ko')
-        real += r_text
-    return real
+    r_text = r.recognize_google(audio, language='ko')
+    return r_text
 
 
 # 모델 호출
