@@ -15,25 +15,27 @@ def m4a_wav_convert(path):
     m4a_file = AudioSegment.from_file(encoded_path, format="m4a", encoding="utf-8")
     wav_path = encoded_path.replace(".m4a", ".wav")
     m4a_file.export(wav_path, format="wav")
+    print(wav_path)
     return wav_path
 
 
-def trim_audio_data(audio_file, save_file, start_time=0.0):
+def trim_audio_data(wav_path, save_file, start_time=0.0):
     sr = 44100
-    y, sr = librosa.load(audio_file, sr=sr)
+    y, sr = librosa.load(wav_path, sr=sr)
     sec = int(librosa.get_duration(y=y, sr=sr))
     ny = y[start_time * sr:sr * (sec + start_time)]
-    sf.write(save_file + f"_{start_time}.wav", ny, sr)
-
+    my = sf.write(save_file + f"_{start_time}.wav", ny, sr)
+    print(my)
+    return my
 
 audio_list = os.listdir(r"C:\Users\HKIT\PycharmProjects\yhdatabase")
 
 
-def cut_wav(wav_path):
+def cut_wav(my):
     for audio_name in audio_list:
         if audio_name.find('wav') != -1:
-            audio_file = wav_path
-            save_file = wav_path + "\\" + "wav" + "\\" + audio_name[:-4]
+            audio_file = my
+            save_file = my + "\\" + "wav" + "\\" + audio_name[:-4]
             f = sf.SoundFile(audio_file)
             f_sec = f.frames // f.samplerate
             print(audio_file, " seconds, ", f_sec)
@@ -42,17 +44,21 @@ def cut_wav(wav_path):
             for i in range(f_sec - sec):
                 if i * 30 > f_sec:
                     break
-                trim_audio_data(audio_file, save_file, i * 30)
+                a = trim_audio_data(audio_file, save_file, i * 30)
+    return a
 
-def transcribe_audio(wav_path):
+
+def transcribe_audio(a):
     r = sr.Recognizer()
-    with sr.AudioFile(wav_path) as source:
+    with sr.AudioFile(a) as source:
         audio = r.record(source)
     text = r.recognize_google(audio, language='ko-KR')
+    print(text)
     return text
 
-def concatenate_texts(text_list):
-    concatenated_text = ' '.join(text_list)
+def concatenate_texts(text):
+    concatenated_text = ' '.join(text)
+    print(concatenated_text)
     return concatenated_text
 
 # 모델 호출
@@ -68,8 +74,8 @@ with open("tokenizer_post.pickle", "rb") as f:
 model2 = load_model("model_post.h5")
 
 
-def predict(wav_path):
-    string = concatenate_texts(wav_path)
+def predict(concatenated_text):
+    string = concatenate_texts(concatenated_text)
 
     real_sequences1 = tokenizer1.texts_to_sequences([string])
     real_seq1 = pad_sequences(real_sequences1, maxlen=1000, truncating="pre")
