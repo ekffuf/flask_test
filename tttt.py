@@ -100,7 +100,10 @@ api = Api(app)
 class HelloWorld(Resource):
     def get(self, m4apath):
         wav_path = m4a_wav_convert(m4apath)
-        detect = predict(wav_path)
+        cut = cut_wav(wav_path)
+        wav_final = transcribe_audio(cut)
+        text_final = concatenate_texts(wav_final)
+        detect = predict(text_final)
         return {"result": detect}
 
 
