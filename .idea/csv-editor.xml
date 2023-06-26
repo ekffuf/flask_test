@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CsvFileAttributes">
+    <option name="attributeMap">
+      <map>
+        <entry key="C:\Users\HKIT\AppData\Roaming\JetBrains\PyCharm2023.1\scratches\10\houseprice.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="C:\Users\HKIT\AppData\Roaming\JetBrains\PyCharm2023.1\scratches\11\SeoulBikeData.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="C:\Users\HKIT\AppData\Roaming\JetBrains\PyCharm2023.1\scratches\22_객체인식\Final_Training\Images\00000\GT-00000.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="C:\Users\HKIT\AppData\Roaming\JetBrains\PyCharm2023.1\scratches\22_객체인식\Final_Training\Images\00001\GT-00001.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="C:\Users\HKIT\AppData\Roaming\JetBrains\PyCharm2023.1\scratches\22_객체인식\Final_Training\Images\00025\GT-00025.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="C:\Users\HKIT\AppData\Roaming\JetBrains\PyCharm2023.1\scratches\kospeech-latest\data\train_result\eval_result.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="C:\Users\HKIT\AppData\Roaming\JetBrains\PyCharm2023.1\scratches\kospeech-latest\data\train_result\train_result.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="C:\Users\HKIT\AppData\Roaming\JetBrains\PyCharm2023.1\scratches\kospeech-latest\data\train_result\train_step_result.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="C:\Users\HKIT\AppData\Roaming\JetBrains\PyCharm2023.1\scratches\kospeech-latest\data\vocab\aihub_character_vocabs.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="C:\Users\HKIT\AppData\Roaming\JetBrains\PyCharm2023.1\scratches\kospeech-latest\data\vocab\aihub_grapheme_vocabs.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
