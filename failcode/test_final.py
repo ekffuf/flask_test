@@ -29,18 +29,18 @@ def stt(wav):
 
 # 모델 호출
 # --pre방식
-with open("../tokenizer_pre.pickle", "rb") as f:
+with open("../model/tokenizer_pre.pickle", "rb") as f:
     tokenizer1 = pk.load(f)
 # with open("model1.pickle", "rb") as f:
 #     model1 = pk.load(f)
-model1 = load_model("../model_pre.h5")
+model1 = load_model("../model/model_pre.h5")
 
 # --post방식
-with open("../tokenizer_post.pickle", "rb") as f:
+with open("../model/tokenizer_post.pickle", "rb") as f:
     tokenizer2 = pk.load(f)
 # with open("model2.pickle", "rb") as f:
 #     model2 = pk.load(f)
-model2 = load_model("../model_post.h5")
+model2 = load_model("../model/model_post.h5")
 
 
 # 새로운 음성 판별
