@@ -14,7 +14,7 @@ import mariadb
 
 
 base_path = "C:/Users/HKIT/PycharmProjects/yhdatabase"
-audio_path = base_path + "/wav_filename"
+audio_path = base_path + "/wav_files"
 save_path = base_path + "/wav"
 audio_list = os.listdir(audio_path)
 
@@ -74,7 +74,7 @@ def concatenate_texts(text_list):
 # --pre방식
 with open("./model/tokenizer_pre.pickle", "rb") as f:
     tokenizer1 = pk.load(f)
-model1 = load_model("../model/model_pre.h5")
+model1 = load_model("./model/model_pre.h5")
 
 
 # --post방식
@@ -102,12 +102,12 @@ app = Flask(__name__)
 api = Api(app)
 
 
-@api.route("/api/client/file", methods=["POST"])
+@api.route("/api/client/file/<string:user_id>/<string:declaration>", methods=["POST"])
 class HelloWorld(Resource):
-    def post(self):
+    def post(self,user_id,declaration):
         if request.method == 'POST':
             file = request.files["file"]
-            file.save(file.filename)
+            file.save(os.path.join(audio_path, file.filename))
             print("[1/6] file saved")
             m4a_path = file.filename
             wav_path = m4a_wav_convert(m4a_path)
@@ -122,25 +122,43 @@ class HelloWorld(Resource):
             print("[6/6] prediction completed")
             data = {'result': detect}
 
-            # conn = mariadb.connect(
-            #     user="root",
-            #     password="1234",
-            #     host="127.0.0.1",
-            #     port=3309,
-            #     database="mysql",
-            # )
-            #
-            # cursor = conn.cursor()
-            # query = f"INSERT INTO flask(textt, result) values ('{text_final}','{detect}')"
-            # cursor.execute(query)
-            # conn.commit()
-            # cursor.close()
-            # conn.close()
-            # print("db-saved completed")
+            conn = mariadb.connect(
+                user="root",
+                password="hkit301301",
+                host="182.229.34.184",
+                port=3306,
+                database="301project",
+            )
+
+            cursor = conn.cursor()
+            query = f"INSERT INTO flask(text, result) values ('{text_final}','{detect}')"
+            query = "SELECT CONVERT(text USING UTF8),result from flask"
+            cursor.execute(query)
+            conn.commit()
+
+            for row in cursor:
+                text = row
+                print(text)
+
+            cursor.close()
+            conn.close()
+            print("db-saved completed")
+
+            for filename1 in os.listdir(save_path):
+                file_path1 = os.path.join(save_path, filename1)
+                if os.path.isfile(file_path1):
+                    os.remove(file_path1)
+                    print(f"{filename1} 파일이 삭제되었습니다.")
+
+            for filename2 in os.listdir(audio_path):
+                file_path2 = os.path.join(audio_path, filename2)
+                if os.path.isfile(file_path2):
+                    os.remove(file_path2)
+                    print(f"{filename2} 파일이 삭제되었습니다.")
 
             return jsonify(data)
 
-@api.route("/fraud/filename/<string:m4apath>", methods=["GET"])
+@api.route("/fraud/filename/<string:m4apath>/<string:phonenumber>", methods=["GET"])
 class HelloWorld(Resource):
     def get(self, m4apath):
         wav_path = m4a_wav_convert(m4apath)
