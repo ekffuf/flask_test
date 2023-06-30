@@ -53,7 +53,7 @@ def cut_wav(wav_filename):
     return
 
 
-def transcribe_audio(data_list):
+async def transcribe_audio(data_list):
     text_list = []
     for i in data_list:
         r = sr.Recognizer()
@@ -98,9 +98,26 @@ app = Flask(__name__)
 api = Api(app)
 
 
+async def process_data(data_list):
+    stt_result_list = []
+
+    async def transcribe_and_append(data):
+        result = await transcribe_audio(data)
+        stt_result_list.append(result)
+
+    await asyncio.gather(*[transcribe_and_append(data) for data in data_list])
+
+    text_final = concatenate_texts(stt_result_list)
+    prediction = predict(text_final)  # detect를 prediction으로 변경함
+    data = {
+        'result': prediction
+    }
+    return data
+
+
 @api.route("/api/client/file/<string:user_id>/<string:declaration>", methods=["POST"])
 class HelloWorld(Resource):
-    def post(self, user_id, declaration):
+    async def post(self, user_id, declaration):
         global M4A_PATH, SPLITWAV_PATH
         if request.method == 'POST':
             file = request.files["file"]
@@ -109,43 +126,12 @@ class HelloWorld(Resource):
             wav_filename = m4a_wav_convert(m4a_filename)
             cut_wav(wav_filename)
             data_list = get_datalist(wav_filename)
-            stt_result_list = transcribe_audio(data_list)
-            text_final = concatenate_texts(stt_result_list)
-            prediction = predict(text_final)  # detect를 prediction으로 변경함
-            data = {
-                'result': prediction
-                }
+
+            data = await process_data(data_list)
             declaration = re.sub("[^0-9]", "", declaration)  # re.sub("[^\d]", "", declaration)와 같음
-            #insert 할때 declaration랑 user_id랑 wav_filename를 적재
-            # conn = mariadb.connect(
-            #     user="root",
-            #     password="hkit301301",
-            #     host="182.229.34.184",
-            #     port=3306,
-            #     database="301project",
-            # )
-            #
-            # cursor = conn.cursor()
-            # query = f"""INSERT INTO voicedata(user_id,declaration,audio_file,content,disdata,created_date) VALUES('{user_id}','{declaration}','{wav_filename}','{text_final}','{prediction}',NOW())"""
-            # cursor.execute(query)
-            # conn.commit()
-            # cursor.close()
-            # conn.close()
-            #
-            #
-            # for filename1 in os.listdir(M4A_PATH):
-            #     file_path1 = os.path.join(M4A_PATH, filename1)
-            #     if os.path.isfile(file_path1):
-            #         os.remove(file_path1)
-            #         print(f"{filename1} 파일이 삭제되었습니다.")
-            #
-            # for filename2 in os.listdir(SPLITWAV_PATH):
-            #     file_path2 = os.path.join(SPLITWAV_PATH, filename2)
-            #     if os.path.isfile(file_path2):
-            #         os.remove(file_path2)
-            #         print(f"{filename2} 파일이 삭제되었습니다.")
             return jsonify(data)
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=9966)
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(app.run_async(debug=True, port=9966))

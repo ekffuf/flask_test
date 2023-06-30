@@ -22,7 +22,7 @@ conn = mariadb.connect(
 #DB메인코드
 # 커서로 sql문 실행
 cursor = conn.cursor()
-query = "SELECT CONVERT(text USING UTF8),result from flask2" #실행할 SQL문
+query = "SELECT CONVERT(content USING UTF8),disdata from voicedata" #실행할 SQL문
 cursor.execute(query)
 result = cursor.fetchall()
 
@@ -33,7 +33,7 @@ conn.close()
 #--------------경로지정
 
 X = [i[0] for i in result]
-y = np.array([i[1] for i in result])
+y = np.array([i[1] for i in result]).astype('float64')
 
 df = pd.DataFrame({"document": X, "label": y})
 
@@ -53,17 +53,15 @@ val_seq = pad_sequences(val_sequences, maxlen=MAX_LEN, truncating=TRUNC)
 
 #--------------모델 층 나누기
 
-model2 = tf.keras.Sequential()
-model2.add(tf.keras.layers.Embedding(input_dim=100000, output_dim=64, input_length=MAX_LEN))
-model2.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(2, return_sequences=True)))
-model2.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(2, return_sequences=False)))
-model2.add(tf.keras.layers.Dropout(rate=0.3))
-model2.add(tf.keras.layers.Dense(1, activation="sigmoid"))
+model = tf.keras.Sequential()
+model.add(tf.keras.layers.Embedding(input_dim=100000, output_dim=64, input_length=MAX_LEN))
+model.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(2, return_sequences=True)))
+model.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(2, return_sequences=False)))
+model.add(tf.keras.layers.Dropout(rate=0.3))
+model.add(tf.keras.layers.Dense(1, activation="sigmoid"))
 
-model2.compile(loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"])
-history = model2.fit(train_seq, train_target, epochs=50, batch_size=32, validation_data=(val_seq, val_target))
-
-
+model.compile(loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"])
+history = model.fit(train_seq, train_target, epochs=50, batch_size=32, validation_data=(val_seq, val_target))
 
 # 저장할 폴더 경로
 folder_path = './model'
@@ -91,6 +89,6 @@ else:
 next_file_path = os.path.join(folder_path, next_file_name)
 
 # 모델 저장
-model2.save(next_file_path)
+model.save(next_file_path)
 
 
