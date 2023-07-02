@@ -96,21 +96,20 @@ def get_datalist(wav_filename):
 
 app = Flask(__name__)
 api = Api(app)
-
-# Kafka 프로듀서 설정
-producer_config = {
-    'bootstrap.servers': '127.0.0.1:1995'
+app.config['KAFKA_BOOTSTRAP_SERVERS'] = 'localhost:9092'
+app.config['KAFKA_TOPIC'] = 'my_topic'
+app.config['KAFKA_PRODUCER_CONFIG'] = {
+    'bootstrap.servers': app.config['KAFKA_BOOTSTRAP_SERVERS']
 }
 
-# Kafka 프로듀서 생성
-producer = Producer(producer_config)
+kafka_producer = Producer(app.config['KAFKA_PRODUCER_CONFIG'])
 
 
-@api.route("/api/client/file/<string:user_id>/<string:declaration>", methods=["POST"])
+@api.route("/api/client/file/<string:user_id>/<string:declaration>", methods=["POST", "GET"])
 class HelloWorld(Resource):
     def post(self, user_id, declaration):
         global M4A_PATH, SPLITWAV_PATH
-        if request.method == 'POST':
+        if request.method == 'GET':
             file = request.files["file"]
             m4a_filename = os.path.join(M4A_PATH, file.filename)
             file.save(m4a_filename)
@@ -122,8 +121,8 @@ class HelloWorld(Resource):
             prediction = predict(text_final)
 
             # 데이터를 Kafka 토픽으로 전송
-            producer.produce('kafka_topic', value=str(prediction))
-            producer.flush()  # 버퍼의 데이터 전송
+            kafka_producer.produce(app.config['KAFKA_TOPIC'], value=message)
+            kafka_producer.flush()
 
             data = {
                 'result': prediction

@@ -69,7 +69,6 @@ def concatenate_texts(text_list):
     return concatenated_text
 
 
-@celery.task
 def process_audio(audio_filename):
     # M4A 파일을 WAV 파일로 변환합니다.
     encoded_path = urllib.parse.unquote(audio_filename)
