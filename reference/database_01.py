@@ -13,7 +13,7 @@ import math
 import mariadb
 
 
-base_path = "C:/Users/HKIT/PycharmProjects/yhdatabase"
+base_path = "/"
 audio_path = base_path + "/wav_files"
 save_path = base_path + "/wav"
 audio_list = os.listdir(audio_path)
@@ -72,9 +72,9 @@ def concatenate_texts(text_list):
 
 # 모델 호출
 # --pre방식
-with open("./model/tokenizer_pre.pickle", "rb") as f:
+with open("../model/tokenizer_pre.pickle", "rb") as f:
     tokenizer1 = pk.load(f)
-model1 = load_model("./model/model_pre.h5")
+model1 = load_model("../model/model_pre.h5")
 
 
 # --post방식

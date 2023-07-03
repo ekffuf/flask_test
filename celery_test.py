@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from celery.bin import celery
+
 from flask import Flask, request, jsonify
 from flask_restx import Api, Resource
 from keras.utils import pad_sequences
@@ -15,6 +15,7 @@ import math
 import os
 import re
 from celery import Celery
+
 
 M4A_PATH = "./downloaded_m4a"
 SPLITWAV_PATH = "./cut_wav"
@@ -69,35 +70,6 @@ def concatenate_texts(text_list):
     return concatenated_text
 
 
-def process_audio(audio_filename):
-    # M4A 파일을 WAV 파일로 변환합니다.
-    encoded_path = urllib.parse.unquote(audio_filename)
-    encoded_path = re.sub('가-힣ㄱ-ㅎ', "", encoded_path)
-    wav_dst = encoded_path.replace(".m4a", ".wav")
-    m4a_src = AudioSegment.from_file(encoded_path, format="m4a", encoding="utf-8")
-    m4a_src.export(wav_dst, format="wav")
-
-    # WAV 파일을 분할하여 저장합니다.
-    f = sf.SoundFile(wav_dst)
-    total_sec = f.frames // f.samplerate
-
-    split_sec = 120
-    interval_count = math.ceil(total_sec / split_sec)
-    for i in range(interval_count):
-        if i * split_sec > total_sec:
-            break
-        trim_audio_data(wav_dst, i * split_sec, split_sec)
-
-    # 분할된 WAV 파일의 텍스트를 추출합니다.
-    data_list = get_datalist(wav_dst)
-    stt_result_list = transcribe_audio(data_list)
-    text_final = concatenate_texts(stt_result_list)
-
-    # 텍스트를 예측하여 결과를 반환합니다.
-    prediction = predict(text_final)
-    return prediction
-
-
 # 모델 호출 --pre방식
 with open("model/tokenizer_pre.pickle", "rb") as f:
     tokenizer1 = pk.load(f)
@@ -122,12 +94,30 @@ def get_datalist(wav_filename):
     return data_list
 
 
+def process_audio(audio_filename):
+    # M4A 파일을 WAV 파일로 변환합니다.
+    wav_filename = m4a_wav_convert(audio_filename)
+
+    # WAV 파일을 분할하여 저장합니다.
+    cut_wav(wav_filename)
+
+    # 분할된 WAV 파일의 텍스트를 추출합니다.
+    data_list = get_datalist(wav_filename)
+    stt_result_list = transcribe_audio(data_list)
+    text_final = concatenate_texts(stt_result_list)
+
+    # 텍스트를 예측하여 결과를 반환합니다.
+    prediction = predict(text_final)
+    return prediction
+
+
 app = Flask(__name__)
 api = Api(app)
 celery = Celery(__name__, broker='redis://localhost:6379/0')
+celery.conf.update(app.config)
 
 
-@api.route("/api/client/file/<string:user_id>/<string:declaration>", methods=["POST"])
+@api.route("/api/client/file/<string:user_id>/<string:declaration>", methods=["POST", "GET"])
 class HelloWorld(Resource):
     def post(self, user_id, declaration):
         if request.method == 'POST':
@@ -148,11 +138,28 @@ class HelloWorld(Resource):
                 data = {'task_id': result.id}
                 return jsonify(data)
 
+    def get(self, user_id, declaration):
+        task_id = request.args.get('task_id')
+        if task_id:
+            # 클라이언트에서 작업 ID를 받았을 때, Celery 작업의 상태를 확인합니다.
+            task = process_audio.AsyncResult(task_id)
+            if task.ready():
+                prediction = task.get()
+                data = {'result': prediction}
+            else:
+                # 작업이 완료되지 않았을 경우, 현재 진행 상황을 반환합니다.
+                data = {'status': task.state}
+
+            return jsonify(data)
+        else:
+            # 작업 ID가 없을 경우, 클라이언트에게 알려줄 수 있는 처리를 추가합니다.
+            data = {'message': 'No task ID provided'}
+            return jsonify(data)
+
 
 if __name__ == "__main__":
     # Celery 워커를 설정합니다.
     app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
     app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
-    celery.conf.update(app.config)
 
     app.run(debug=True, port=9966)
