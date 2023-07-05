@@ -17,8 +17,8 @@ import re
 from celery import Celery
 
 
-M4A_PATH = "./downloaded_m4a"
-SPLITWAV_PATH = "./cut_wav"
+M4A_PATH = "../downloaded_m4a"
+SPLITWAV_PATH = "../cut_wav"
 
 
 def m4a_wav_convert(path):
@@ -71,9 +71,9 @@ def concatenate_texts(text_list):
 
 
 # 모델 호출 --pre방식
-with open("model/tokenizer_pre.pickle", "rb") as f:
+with open("../model/tokenizer_pre.pickle", "rb") as f:
     tokenizer1 = pk.load(f)
-model1 = load_model("model/model_pre.h5")
+model1 = load_model("../model/model_pre.h5")
 
 
 def predict(string):

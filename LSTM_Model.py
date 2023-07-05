@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 import mariadb
-import pickle as pk
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from sklearn.model_selection import train_test_split
@@ -22,20 +21,19 @@ conn = mariadb.connect(
 #DB메인코드
 # 커서로 sql문 실행
 cursor = conn.cursor()
-query = "SELECT CONVERT(content USING UTF8),disdata from voicedata" #실행할 SQL문
+#실행할 SQL문
+query = "SELECT CONVERT(content USING UTF8),disdata from voicedata"
 cursor.execute(query)
 result = cursor.fetchall()
-
  # 커서닫기
 cursor.close()
 conn.close()
 
 #--------------경로지정
-
 X = [i[0] for i in result]
 y = np.array([i[1] for i in result]).astype('float64')
-
 df = pd.DataFrame({"document": X, "label": y})
+
 
 #-------------토크나이저 설정
 MAX_LEN = 1000
@@ -51,8 +49,8 @@ train_seq = pad_sequences(train_sequences, maxlen=MAX_LEN, truncating=TRUNC)
 val_sequences = tokenizer.texts_to_sequences(val_input)
 val_seq = pad_sequences(val_sequences, maxlen=MAX_LEN, truncating=TRUNC)
 
-#--------------모델 층 나누기
 
+#--------------모델 층 나누기
 model = tf.keras.Sequential()
 model.add(tf.keras.layers.Embedding(input_dim=100000, output_dim=64, input_length=MAX_LEN))
 model.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(2, return_sequences=True)))

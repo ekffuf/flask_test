@@ -15,7 +15,7 @@ import librosa
 import math
 import os
 import re
-
+from confluent_kafka import Producer
 
 M4A_PATH = "../downloaded_m4a"
 SPLITWAV_PATH = "../cut_wav"
@@ -96,13 +96,20 @@ def get_datalist(wav_filename):
 
 app = Flask(__name__)
 api = Api(app)
+app.config['KAFKA_BOOTSTRAP_SERVERS'] = 'localhost:9092'
+app.config['KAFKA_TOPIC'] = 'my_topic'
+app.config['KAFKA_PRODUCER_CONFIG'] = {
+    'bootstrap.servers': app.config['KAFKA_BOOTSTRAP_SERVERS']
+}
+
+kafka_producer = Producer(app.config['KAFKA_PRODUCER_CONFIG'])
 
 
-@api.route("/api/client/file/<string:user_id>/<string:declaration>", methods=["POST"])
+@api.route("/api/client/file/<string:user_id>/<string:declaration>", methods=["POST", "GET"])
 class HelloWorld(Resource):
     def post(self, user_id, declaration):
         global M4A_PATH, SPLITWAV_PATH
-        if request.method == 'POST':
+        if request.method == 'GET':
             file = request.files["file"]
             m4a_filename = os.path.join(M4A_PATH, file.filename)
             file.save(m4a_filename)
@@ -111,39 +118,16 @@ class HelloWorld(Resource):
             data_list = get_datalist(wav_filename)
             stt_result_list = transcribe_audio(data_list)
             text_final = concatenate_texts(stt_result_list)
-            prediction = predict(text_final)  # detect를 prediction으로 변경함
+            prediction = predict(text_final)
+
+            # 데이터를 Kafka 토픽으로 전송
+            kafka_producer.produce(app.config['KAFKA_TOPIC'], value=message)
+            kafka_producer.flush()
+
             data = {
                 'result': prediction
-                }
-            declaration = re.sub("[^0-9]", "", declaration)  # re.sub("[^\d]", "", declaration)와 같음
-            #insert 할때 declaration랑 user_id랑 wav_filename를 적재
-            conn = mariadb.connect(
-                user="root",
-                password="hkit301301",
-                host="182.229.34.184",
-                port=3306,
-                database="301project",
-            )
-
-            cursor = conn.cursor()
-            query = f"""INSERT INTO voicedata(user_id,declaration,audio_file,content,disdata,created_date) VALUES('{user_id}','{declaration}','{wav_filename}','{text_final}','{prediction}',NOW())"""
-            cursor.execute(query)
-            conn.commit()
-            cursor.close()
-            conn.close()
-
-
-            for filename1 in os.listdir(M4A_PATH):
-                file_path1 = os.path.join(M4A_PATH, filename1)
-                if os.path.isfile(file_path1):
-                    os.remove(file_path1)
-                    print(f"{filename1} 파일이 삭제되었습니다.")
-
-            for filename2 in os.listdir(SPLITWAV_PATH):
-                file_path2 = os.path.join(SPLITWAV_PATH, filename2)
-                if os.path.isfile(file_path2):
-                    os.remove(file_path2)
-                    print(f"{filename2} 파일이 삭제되었습니다.")
+            }
+            declaration = re.sub("[^0-9]", "", declaration)
             return jsonify(data)
 
 
