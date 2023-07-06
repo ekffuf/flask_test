@@ -17,8 +17,9 @@ import os
 import re
 
 
-M4A_PATH = "./downloaded_m4a"
-SPLITWAV_PATH = "./cut_wav"
+M4A_PATH = "../downloaded_m4a"
+SPLITWAV_PATH = "../cut_wav"
+WAV_PATH = "../convert_wav"
 
 
 def m4a_wav_convert(path):
@@ -71,9 +72,9 @@ def concatenate_texts(text_list):
 
 # 모델 호출
 # --pre방식
-with open("./model/tokenizer_pre.pickle", "rb") as f:
+with open("../model/tokenizer_pre.pickle", "rb") as f:
     tokenizer1 = pk.load(f)
-model1 = load_model("./model/model_pre.h5")
+model1 = load_model("../model/model_pre.h5")
 
 
 def predict(string):
@@ -119,38 +120,36 @@ class HelloWorld(Resource):
             data = {
                 'result': prediction
             }
-            declaration = re.sub("[^0-9]", "", declaration)  # re.sub("[^\d]", "", declaration)와 같음
-            # insert 할때 declaration랑 user_id랑 wav_filename를 적재
-            conn = mariadb.connect(
-                user="root",
-                password="hkit301301",
-                host="182.229.34.184",
-                port=3306,
-                database="301project",
-            )
-
-            cursor = conn.cursor()
-            query = f"""INSERT INTO voicedata(user_id,declaration,audio_file,content,disdata,created_date) VALUES('{user_id}','{declaration}','{wav_filename}','{text_final}','{prediction}',NOW())"""
-            cursor.execute(query)
-            conn.commit()
-            cursor.close()
-            conn.close()
-            #DB에 자료들을 저장을 했다(스프링부트쪽에 알려주기)
-            for filename1 in os.listdir(M4A_PATH):
-                file_path1 = os.path.join(M4A_PATH, filename1)
-                if os.path.isfile(file_path1):
-                    os.remove(file_path1)
-                    print(f"{filename1} 파일이 삭제되었습니다.")
-            
-            for filename2 in os.listdir(SPLITWAV_PATH):
-                file_path2 = os.path.join(SPLITWAV_PATH, filename2)
-                if os.path.isfile(file_path2):
-                    os.remove(file_path2)
-                    print(f"{filename2} 파일이 삭제되었습니다.")
+            # declaration = re.sub("[^0-9]", "", declaration)  # re.sub("[^\d]", "", declaration)와 같음
+            # # insert 할때 declaration랑 user_id랑 wav_filename를 적재
+            # conn = mariadb.connect(
+            #     user="root",
+            #     password="hkit301301",
+            #     host="182.229.34.184",
+            #     port=3306,
+            #     database="301project",
+            # )
+            #
+            # cursor = conn.cursor()
+            # query = f"""INSERT INTO voicedata(user_id,declaration,audio_file,content,disdata,created_date) VALUES('{user_id}','{declaration}','{wav_filename}','{text_final}','{prediction}',NOW())"""
+            # cursor.execute(query)
+            # conn.commit()
+            # cursor.close()
+            # conn.close()
+            # #DB에 자료들을 저장을 했다(스프링부트쪽에 알려주기)
+            # for filename1 in os.listdir(M4A_PATH):
+            #     file_path1 = os.path.join(M4A_PATH, filename1)
+            #     if os.path.isfile(file_path1):
+            #         os.remove(file_path1)
+            #         print(f"{filename1} 파일이 삭제되었습니다.")
+            #
+            # for filename2 in os.listdir(SPLITWAV_PATH):
+            #     file_path2 = os.path.join(SPLITWAV_PATH, filename2)
+            #     if os.path.isfile(file_path2):
+            #         os.remove(file_path2)
+            #         print(f"{filename2} 파일이 삭제되었습니다.")
             #있었던 파일들을 삭제했다(스프링부트쪽에 알려주기)
             return jsonify(data)
-
-        #if request.method == 'GET':
 
 
 if __name__ == "__main__":

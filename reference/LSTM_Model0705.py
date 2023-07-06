@@ -62,7 +62,7 @@ model.compile(loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"]
 history = model.fit(train_seq, train_target, epochs=50, batch_size=32, validation_data=(val_seq, val_target))
 
 # 저장할 폴더 경로
-folder_path = './model'
+folder_path = '../model'
 
 # 저장할 파일 이름
 file_name = 'modelVer.h5'
