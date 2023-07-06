@@ -56,7 +56,7 @@ class HelloWorld(Resource):
             database="301project",
         )
         cursor = conn.cursor()
-        query = f"""UPDATE voicedata SET reroll={prediction} where user_id={user_id}"""
+        query = f"""UPDATE voicedata SET reroll='{prediction}' where user_id='{user_id}'"""
         cursor.execute(query)
         conn.commit()
         cursor.close()
