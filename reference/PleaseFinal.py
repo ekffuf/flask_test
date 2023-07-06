@@ -19,16 +19,16 @@ import re
 import logging
 
 
-M4A_PATH = "./downloaded_m4a"
-SPLITWAV_PATH = "./cut_wav"
-WAV_PATH = "./convert_wav"
+M4A_PATH = "../downloaded_m4a"
+SPLITWAV_PATH = "../cut_wav"
+WAV_PATH = "../convert_wav"
 m4a_filename = ""
-portnumber = "http://127.0.0.1:9944"
+portnumber = "http://182.229.34.184:9944"
 logging.basicConfig(level=logging.INFO)
 
-def notify_file_received(user_id,declaration):
+def notify_file_received():
     logging.info("lalalalalalalalalalalalalalal")
-    url = portnumber + f"/api/progress/<string:{user_id}>/<string:{declaration}>"
+    url = portnumber + "/api/progress"
     payload = {"score": "25%"}
     response = requests.post(url, json=payload)
     if response.status_code == 200:
@@ -61,9 +61,9 @@ def wav_mfcc(wav_dst):
     return X_data, y_data
 
 
-def notify_wav_conversion(user_id,declaration):
+def notify_wav_conversion():
     logging.info("lalalalalalalalalalalalalalal")
-    url = portnumber + f"/api/progress/<string:{user_id}>/<string:{declaration}>"
+    url = portnumber + "/api/progress"
     payload = {"score": "50%"}
     response = requests.post(url, json=payload)
     if response.status_code == 200:
@@ -108,9 +108,9 @@ def transcribe_audio(data_list):
     return text_list
 
 
-def notify_stt_conversion(user_id,declaration):
+def notify_stt_conversion():
     logging.info("lalalalalalalalalalalalalalal")
-    url = portnumber + f"/api/progress/<string:{user_id}>/<string:{declaration}>"
+    url = portnumber + "/api/progress"
     payload = {"score": "75%"}
     response = requests.post(url, json=payload)
     if response.status_code == 200:
@@ -125,10 +125,10 @@ def concatenate_texts(text_list):
     return concatenated_text
 
 
-with open("./model/tokenizer_pre.pickle", "rb") as f:
+with open("../model/tokenizer_pre.pickle", "rb") as f:
     tokenizer1 = pk.load(f)
-model1 = load_model("./model/model_pre.h5")
-model2 = load_model("./model/mfcc.h5")
+model1 = load_model("../model/model_pre.h5")
+model2 = load_model("../model/mfcc.h5")
 
 
 def predict1(string):
@@ -155,9 +155,9 @@ def predict2(X_data, y_data):
     return result_mfcc
 
 
-def notify_prediction(user_id,declaration):
+def notify_prediction():
     logging.info("lalalalalalalalalalalalalalal")
-    url = portnumber + f"/api/progress/<string:{user_id}>/<string:{declaration}>"
+    url = portnumber + "/api/progress"
     payload = {"score": "100%"}
     response = requests.post(url, json=payload)
     if response.status_code == 200:
@@ -177,7 +177,7 @@ app = Flask(__name__)
 api = Api(app)
 
 
-@api.route("/api/VoiClaReq/<string:user_id>/<string:declaration>", methods=["POST"])
+@api.route("/api/client/file/<string:user_id>/<string:declaration>", methods=["POST"])
 class HelloWorld(Resource):
     def post(self, user_id, declaration):
         global M4A_PATH, SPLITWAV_PATH, m4a_filename, WAV_PATH
@@ -185,18 +185,18 @@ class HelloWorld(Resource):
             file = request.files["file"]
             m4a_filename = os.path.join(M4A_PATH, file.filename)
             file.save(m4a_filename)
-            notify_file_received(user_id, declaration)
+            notify_file_received()
             wav_filename = m4a_wav_convert(m4a_filename, WAV_PATH)
-            notify_wav_conversion(user_id,declaration)
+            notify_wav_conversion()
             cut_wav(wav_filename)
             data_list = get_datalist(wav_filename)
             stt_result_list = transcribe_audio(data_list)
-            notify_stt_conversion(user_id, declaration)
+            notify_stt_conversion()
             text_final = concatenate_texts(stt_result_list)
             prediction = predict1(text_final)
             X_data, y_data = wav_mfcc(wav_filename)
             result_mfcc = predict2(X_data, y_data)
-            notify_prediction(user_id, declaration)
+            notify_prediction()
 
             data = {
                 'result': prediction,
@@ -234,4 +234,4 @@ class HelloWorld(Resource):
 
 
 if __name__ == "__main__":
-    app.run(debug=False,host="0.0.0.0", port=9966)
+    app.run(debug=False, host="0.0.0.0", port=9966)
