@@ -19,14 +19,15 @@ import re
 import logging
 
 
-M4A_PATH = "./downloaded_m4a"
+#M4A_PATH = "./downloaded_m4a"
 SPLITWAV_PATH = "./cut_wav"
 WAV_PATH = "./convert_wav"
 m4a_filename = ""
 portnumber = "http://127.0.0.1:9944"
 logging.basicConfig(level=logging.INFO)
 
-def notify_file_received(user_id,declaration):
+
+def notify_file_received(user_id, declaration):
     logging.info("lalalalalalalalalalalalalalal")
     url = portnumber + f"/api/progress/<string:{user_id}>/<string:{declaration}>"
     payload = {"score": "25%"}
@@ -38,7 +39,7 @@ def notify_file_received(user_id,declaration):
 
 
 def m4a_wav_convert(path, WAV_PATH):
-    logging.info("lalalalalalalalalalalalalalal")
+    logging.info("m4a_wav_convert")
     encoded_path = urllib.parse.unquote(path)
     encoded_path = re.sub('가-힣ㄱ-ㅎ', "", encoded_path)
     wav_filename = os.path.basename(encoded_path).replace('.m4a', '.wav')
@@ -49,7 +50,7 @@ def m4a_wav_convert(path, WAV_PATH):
 
 
 def wav_mfcc(wav_dst):
-    logging.info("lalalalalalalalalalalalalalal")
+    logging.info("wav_mfcc")
     X_data = []
     y_data = []
     y, sr = librosa.load(wav_dst)
@@ -61,7 +62,7 @@ def wav_mfcc(wav_dst):
     return X_data, y_data
 
 
-def notify_wav_conversion(user_id,declaration):
+def notify_wav_conversion(user_id, declaration):
     logging.info("lalalalalalalalalalalalalalal")
     url = portnumber + f"/api/progress/<string:{user_id}>/<string:{declaration}>"
     payload = {"score": "50%"}
@@ -73,7 +74,7 @@ def notify_wav_conversion(user_id,declaration):
 
 
 def trim_audio_data(wav_filename, start_time=0.0, sec=120):
-    logging.info("lalalalalalalalalalalalalalal")
+    logging.info("trim_audio_data")
     sample_rate = 44100
     audio_array, sample_rate = librosa.load(wav_filename, sr=sample_rate)
     audio_splitted = audio_array[start_time * sample_rate:sample_rate * (sec + start_time)]
@@ -84,7 +85,7 @@ def trim_audio_data(wav_filename, start_time=0.0, sec=120):
 
 
 def cut_wav(wav_filename):
-    logging.info("lalalalalalalalalalalalalalal")
+    logging.info("cut_wav")
     f = sf.SoundFile(wav_filename)
     total_sec = f.frames // f.samplerate
     split_sec = 120
@@ -97,7 +98,7 @@ def cut_wav(wav_filename):
 
 
 def transcribe_audio(data_list):
-    logging.info("lalalalalalalalalalalalalalal")
+    logging.info("transcribe_audio")
     text_list = []
     for i in data_list:
         r = sr.Recognizer()
@@ -108,7 +109,7 @@ def transcribe_audio(data_list):
     return text_list
 
 
-def notify_stt_conversion(user_id,declaration):
+def notify_stt_conversion(user_id, declaration):
     logging.info("lalalalalalalalalalalalalalal")
     url = portnumber + f"/api/progress/<string:{user_id}>/<string:{declaration}>"
     payload = {"score": "75%"}
@@ -120,7 +121,7 @@ def notify_stt_conversion(user_id,declaration):
 
 
 def concatenate_texts(text_list):
-    logging.info("lalalalalalalalalalalalalalal")
+    logging.info("concatenate_texts")
     concatenated_text = ' '.join(text_list)
     return concatenated_text
 
@@ -132,7 +133,7 @@ model2 = load_model("./model/mfcc.h5")
 
 
 def predict1(string):
-    logging.info("lalalalalalalalalalalalalalal")
+    logging.info("predict1")
     real_sequences1 = tokenizer1.texts_to_sequences([string])
     real_seq1 = pad_sequences(real_sequences1, maxlen=1000, truncating="pre")
     result1 = model1.predict(real_seq1)
@@ -145,7 +146,7 @@ def predict1(string):
 
 
 def predict2(X_data, y_data):
-    logging.info("lalalalalalalalalalalalalalal")
+    logging.info("predict2")
     result2 = model2.evaluate(x=X_data, y=y_data)[1]
 
     if (result2 >= 0.5):
@@ -155,7 +156,7 @@ def predict2(X_data, y_data):
     return result_mfcc
 
 
-def notify_prediction(user_id,declaration):
+def notify_prediction(user_id, declaration):
     logging.info("lalalalalalalalalalalalalalal")
     url = portnumber + f"/api/progress/<string:{user_id}>/<string:{declaration}>"
     payload = {"score": "100%"}
@@ -167,7 +168,7 @@ def notify_prediction(user_id,declaration):
 
 
 def get_datalist(wav_filename):
-    logging.info("lalalalalalalalalalalalalalal")
+    logging.info("get_datalist")
     basename = os.path.basename(wav_filename)
     data_list = [i for i in os.listdir(SPLITWAV_PATH) if i.startswith(os.path.splitext(basename)[0])]
     return data_list
@@ -180,22 +181,35 @@ api = Api(app)
 @api.route("/api/VoiClaReq/<string:user_id>/<string:declaration>", methods=["POST"])
 class HelloWorld(Resource):
     def post(self, user_id, declaration):
-        global M4A_PATH, SPLITWAV_PATH, m4a_filename, WAV_PATH
+        print("post started")
+        #global M4A_PATH, SPLITWAV_PATH, m4a_filename, WAV_PATH
+        global SPLITWAV_PATH, WAV_PATH
         if request.method == 'POST':
-            file = request.files["file"]
-            m4a_filename = os.path.join(M4A_PATH, file.filename)
-            file.save(m4a_filename)
+            print("find file")
+            file = request.form["file"]
+            print(file)
+            #m4a_filename = os.path.join(M4A_PATH, file)
+            # file.save(m4a_filename)
+            print("save file")
             notify_file_received(user_id, declaration)
-            wav_filename = m4a_wav_convert(m4a_filename, WAV_PATH)
-            notify_wav_conversion(user_id,declaration)
+            wav_filename = m4a_wav_convert(file, WAV_PATH)
+            print("m4a_wav_convert")
+            notify_wav_conversion(user_id, declaration)
             cut_wav(wav_filename)
+            print("cut_wav")
             data_list = get_datalist(wav_filename)
+            print("get_datalist")
             stt_result_list = transcribe_audio(data_list)
+            print("transcribe_audio")
             notify_stt_conversion(user_id, declaration)
             text_final = concatenate_texts(stt_result_list)
+            print("concatenate_texts")
             prediction = predict1(text_final)
+            print("predict1")
             X_data, y_data = wav_mfcc(wav_filename)
+            print("wav_mfcc")
             result_mfcc = predict2(X_data, y_data)
+            print("predict2")
             notify_prediction(user_id, declaration)
 
             data = {
@@ -204,26 +218,26 @@ class HelloWorld(Resource):
             }
 
             declaration = re.sub("[^0-9]", "", declaration)
-            conn = mariadb.connect(
-                user="root",
-                password="hkit301301",
-                host="182.229.34.184",
-                port=3306,
-                database="301project",
-            )
+            # conn = mariadb.connect(
+            #     user="root",
+            #     password="hkit301301",
+            #     host="182.229.34.184",
+            #     port=3306,
+            #     database="301project",
+            # )
+            #
+            # cursor = conn.cursor()
+            # query = f"""INSERT INTO voicedata(user_id,declaration,audio_file,content,disdata,created_date,mfcc) VALUES('{user_id}','{declaration}','{wav_filename}','{text_final}','{prediction}',NOW(),'{result_mfcc}')"""
+            # cursor.execute(query)
+            # conn.commit()
+            # cursor.close()
+            # conn.close()
 
-            cursor = conn.cursor()
-            query = f"""INSERT INTO voicedata(user_id,declaration,audio_file,content,disdata,created_date,mfcc) VALUES('{user_id}','{declaration}','{wav_filename}','{text_final}','{prediction}',NOW(),'{result_mfcc}')"""
-            cursor.execute(query)
-            conn.commit()
-            cursor.close()
-            conn.close()
-
-            for filename1 in os.listdir(M4A_PATH):
-                file_path1 = os.path.join(M4A_PATH, filename1)
-                if os.path.isfile(file_path1):
-                    os.remove(file_path1)
-                    print(f"{filename1} 파일이 삭제되었습니다.")
+            # for filename1 in os.listdir(M4A_PATH):
+            #     file_path1 = os.path.join(M4A_PATH, filename1)
+            #     if os.path.isfile(file_path1):
+            #         os.remove(file_path1)
+            #         print(f"{filename1} 파일이 삭제되었습니다.")
 
             for filename2 in os.listdir(SPLITWAV_PATH):
                 file_path2 = os.path.join(SPLITWAV_PATH, filename2)
@@ -232,6 +246,12 @@ class HelloWorld(Resource):
                     print(f"{filename2} 파일이 삭제되었습니다.")
             return jsonify(data)
 
+# @api.route("/api/VoiClaReq/<string:user_id>/<string:declaration>/<string:filename>", methods=["GET"])
+# class HelloWorld(Resource):
+#     def get(self, user_id, declaration, filename):
+#         filename = filename + ".m4a"
+#         return filename
+
 
 if __name__ == "__main__":
-    app.run(debug=False,host="0.0.0.0", port=9966)
+    app.run(debug=False, host="0.0.0.0", port=9966)

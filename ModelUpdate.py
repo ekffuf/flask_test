@@ -48,7 +48,7 @@ model.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(2, return_sequences
 model.add(tf.keras.layers.Dropout(rate=0.3))
 model.add(tf.keras.layers.Dense(1, activation="sigmoid"))
 model.compile(loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"])
-history = model.fit(train_seq, train_target, epochs=50, batch_size=32, validation_data=(val_seq, val_target))
+model.fit(train_seq, train_target, epochs=50, batch_size=32, validation_data=(val_seq, val_target))
 
 
 folder_path = './model'

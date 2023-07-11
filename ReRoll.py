@@ -56,7 +56,7 @@ class HelloWorld(Resource):
             database="301project",
         )
         cursor = conn.cursor()
-        query = f"""UPDATE voicedata SET reroll='{prediction}' where user_id='{user_id}'"""
+        query = f"""UPDATE voicedata SET reroll='{prediction}' where user_id='{user_id}' and declaration='{declaration}'"""
         cursor.execute(query)
         conn.commit()
         cursor.close()
@@ -65,4 +65,4 @@ class HelloWorld(Resource):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=False, host="0.0.0.0", port=5000)
