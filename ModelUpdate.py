@@ -11,11 +11,11 @@ from sklearn.model_selection import train_test_split
 
 
 conn = mariadb.connect(
-    user="root",
-    password="hkit301301",
-    host="182.229.34.184",
-    port=3306,
-    database="301project"
+    user="user",
+    password="password",
+    host="host",
+    port=port,
+    database="database"
 )
 
 cursor = conn.cursor()

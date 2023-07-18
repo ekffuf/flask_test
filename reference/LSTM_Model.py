@@ -10,7 +10,13 @@ import mariadb
 #------MariaDB연결
 
 
-conn = mariadb.connect(user = "root", password = "hkit301301", host = "182.229.34.184", port = 3306, database = "301project")
+conn = mariadb.connect(
+    user="user",
+    password="password",
+    host="host",
+    port=port,
+    database="database"
+)
 
 #DB메인코드
 

@@ -168,11 +168,11 @@ class HelloWorld(Resource):
             declaration = re.sub("[^0-9]", "", declaration)  # re.sub("[^\d]", "", declaration)와 같음
             # insert 할때 declaration랑 user_id랑 wav_filename를 적재
             conn = mariadb.connect(
-                user="root",
-                password="hkit301301",
-                host="182.229.34.184",
-                port=3306,
-                database="301project",
+                user="user",
+                password="password",
+                host="host",
+                port=port,
+                database="database"
             )
 
             cursor = conn.cursor()

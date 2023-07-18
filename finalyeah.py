@@ -22,7 +22,7 @@ import logging
 SPLITWAV_PATH = "./cut_wav"
 WAV_PATH = "./convert_wav"
 m4a_filename = ""
-portnumber = "http://127.0.0.1:5502"
+portnumber = "http://localhost:9966"
 logging.basicConfig(level=logging.INFO)
 
 
@@ -198,11 +198,11 @@ class HelloWorld(Resource):
 
             declaration = re.sub("[^0-9]", "", declaration)
             conn = mariadb.connect(
-                user="root",
-                password="hkit301301",
-                host="182.229.34.184",
-                port=3306,
-                database="301project",
+                user="user",
+                password="password",
+                host="host",
+                port="port",
+                database="database"
             )
 
             cursor = conn.cursor()
@@ -224,4 +224,4 @@ class HelloWorld(Resource):
 
 
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port=9966)
+    app.run(debug=False, port=9966)

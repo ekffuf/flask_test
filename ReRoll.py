@@ -49,11 +49,11 @@ class HelloWorld(Resource):
         }
 
         conn = mariadb.connect(
-            user="root",
-            password="hkit301301",
-            host="182.229.34.184",
-            port=3306,
-            database="301project",
+            user="user",
+            password="password",
+            host="host",
+            port="port",
+            database="database"
         )
         cursor = conn.cursor()
         query = f"""UPDATE voicedata SET reroll='{prediction}' where user_id='{user_id}' and declaration='{declaration}'"""
@@ -65,4 +65,4 @@ class HelloWorld(Resource):
 
 
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port=5000)
+    app.run(debug=False, port=5000)

@@ -129,11 +129,11 @@ def process_audio(audio_filename, user_id, declaration):
 
     # 데이터베이스에 레코드를 삽입합니다.
     # conn = mariadb.connect(
-    #     user="root",
-    #     password="hkit301301",
-    #     host="182.229.34.184",
-    #     port=3306,
-    #     database="301project",
+    #     user="user",
+    #     password="password",
+    #     host="host",
+    #     port=port,
+    #     database="database"
     # )
     # cursor = conn.cursor()
     # query = f"""INSERT INTO voicedata(user_id, declaration, audio_file, content, disdata, created_date)
@@ -187,11 +187,11 @@ class HelloWorld(Resource):
             return {"task_id": str(result.id)}, 200
             # 사용자 및 선언에 해당하는 작업을 조회합니다.
             # conn = mariadb.connect(
-            #     user="root",
-            #     password="hkit301301",
-            #     host="182.229.34.184",
-            #     port=3306,
-            #     database="301project",
+            #     user="user",
+            #     password="password",
+            #     host="host",
+            #     port=port,
+            #     database="database"
             # )
             # cursor = conn.cursor()
             # query = f"""SELECT * FROM voicedata WHERE user_id='{user_id}' AND declaration='{declaration}'"""
